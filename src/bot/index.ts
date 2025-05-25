@@ -35,19 +35,17 @@ bot.command("help", (ctx) => {
 
 bot.command("webapp", (ctx) => {
   const userId = ctx.from?.id?.toString() ?? "";
-
   const encodedUserId = Buffer.from(userId).toString("base64");
-  ctx.reply(encodedUserId);
-  ctx.reply(userId);
+  const webAppUrl = `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`;
 
   ctx.reply("🔓 Open Web App", {
     reply_markup: {
       inline_keyboard: [
         [
           {
-            text: "Open App",
+            text: "Open WebApp",
             web_app: {
-              url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
+              url: webAppUrl,
             },
           },
         ],
