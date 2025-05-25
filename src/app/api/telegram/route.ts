@@ -23,7 +23,7 @@ bot.command("start", (ctx) => {
 });
 
 // Respond to any plain text message
-bot.command("start_application", (ctx) => {});
+// bot.command("start_application", (ctx) => {});
 
 // Handle Telegram POST updates
 export async function POST(req: NextRequest) {
