@@ -23,13 +23,14 @@ bot.command("start", (ctx) => {
   });
 });
 
-bot.action("start_application", async (ctx) => {
-  ctx.session.step = 1;
-  ctx.session.answers = {};
-  await ctx.reply("1. What's your name?");
+bot.command("help", (ctx) => {
+  ctx.reply(
+    "Available commands:\n" +
+      "/start - Start the bot\n" +
+      "/help - Show this help message\n" +
+      "/webapp - Open the Mini App"
+  );
 });
-
-bot.on("text", handleApplicationFlow);
 
 bot.command("webapp", (ctx) => {
   const userId = ctx.from?.id?.toString() ?? "";
@@ -41,12 +42,18 @@ bot.command("webapp", (ctx) => {
         [
           {
             text: "Open App",
-            web_app: {
-              url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
-            },
+            url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
           },
         ],
       ],
     },
   });
 });
+
+bot.action("start_application", async (ctx) => {
+  ctx.session.step = 1;
+  ctx.session.answers = {};
+  await ctx.reply("1. What's your name?");
+});
+
+bot.on("text", handleApplicationFlow);
