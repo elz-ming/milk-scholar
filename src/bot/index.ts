@@ -38,15 +38,15 @@ bot.command("webapp", (ctx) => {
   const encodedUserId = Buffer.from(userId).toString("base64");
   const webAppUrl = `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`;
 
-  ctx.reply(webAppUrl);
-
   ctx.reply("🔓 Open Web App", {
     reply_markup: {
       inline_keyboard: [
         [
           {
             text: "Open WebApp",
-            url: webAppUrl,
+            web_app: {
+              url: webAppUrl,
+            },
           },
         ],
       ],
