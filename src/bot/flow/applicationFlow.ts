@@ -60,7 +60,7 @@ export async function handleApplicationFlow(ctx: AppContext) {
             [
               {
                 text: "Open WebApp",
-                url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
+                url: `https://milk-scholar.vercel.app?startapp=${encodedUserId}`,
               },
             ],
           ],
