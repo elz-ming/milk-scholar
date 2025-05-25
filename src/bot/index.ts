@@ -44,9 +44,7 @@ bot.command("webapp", (ctx) => {
         [
           {
             text: "Open WebApp",
-            web_app: {
-              url: webAppUrl,
-            },
+            url: webAppUrl,
           },
         ],
       ],
