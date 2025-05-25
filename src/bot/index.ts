@@ -44,7 +44,7 @@ bot.command("webapp", (ctx) => {
           {
             text: "Open App",
             web_app: {
-              url: `https://milk-scholar.vercel.app`,
+              url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
             },
           },
         ],
