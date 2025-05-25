@@ -30,3 +30,21 @@ bot.action("start_application", async (ctx) => {
 });
 
 bot.on("text", handleApplicationFlow);
+
+bot.command("webapp", (ctx) => {
+  const userId = ctx.from?.id?.toString() ?? "";
+  const encodedUserId = Buffer.from(userId.toString()).toString("base64");
+
+  ctx.reply("🔓 Open Web App", {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "Open App",
+            url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
+          },
+        ],
+      ],
+    },
+  });
+});
