@@ -56,6 +56,7 @@ function MILKDashboard() {
 
   return (
     <div className="min-h-screen bg-white p-4 text-black">
+      <h1 className="text-2xl font-bold mb-4">MILK Dashboard</h1>
       <main>
         <p className="text-sm text-gray-600 mb-4">User ID: {groupId}</p>
       </main>
