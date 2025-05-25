@@ -35,10 +35,10 @@ bot.command("help", (ctx) => {
 
 bot.command("webapp", (ctx) => {
   const userId = ctx.from?.id?.toString() ?? "";
-  ctx.reply(userId);
 
   const encodedUserId = Buffer.from(userId).toString("base64");
   ctx.reply(encodedUserId);
+  ctx.reply(userId);
 
   ctx.reply("🔓 Open Web App", {
     reply_markup: {
