@@ -41,7 +41,9 @@ bot.command("webapp", (ctx) => {
         [
           {
             text: "Open App",
-            url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
+            web_app: {
+              url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
+            },
           },
         ],
       ],

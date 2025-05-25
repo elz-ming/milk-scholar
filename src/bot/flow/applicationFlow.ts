@@ -60,7 +60,7 @@ export async function handleApplicationFlow(ctx: AppContext) {
             [
               {
                 text: "Open WebApp",
-                url: `https://${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
+                url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
               },
             ],
           ],
