@@ -1,6 +1,7 @@
 import { Telegraf } from "telegraf";
 import { sessionMiddleware, AppContext } from "./session";
 import { handleApplicationFlow } from "./flow/applicationFlow";
+import { Buffer } from "buffer";
 
 export const bot = new Telegraf<AppContext>(process.env.BOT_TOKEN!);
 
@@ -33,8 +34,8 @@ bot.command("help", (ctx) => {
 });
 
 bot.command("webapp", (ctx) => {
-  // const userId = ctx.from?.id?.toString() ?? "";
-  // const encodedUserId = Buffer.from(userId).toString("base64");
+  const userId = ctx.from?.id?.toString() ?? "";
+  const encodedUserId = Buffer.from(userId).toString("base64");
 
   ctx.reply("🔓 Open Web App", {
     reply_markup: {
