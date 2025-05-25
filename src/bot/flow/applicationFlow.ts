@@ -60,7 +60,7 @@ export async function handleApplicationFlow(ctx: AppContext) {
             [
               {
                 text: "Open WebApp",
-                url: `https://your-webapp-url.vercel.app?startapp=${encodedUserId}`,
+                url: `https://${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
               },
             ],
           ],
