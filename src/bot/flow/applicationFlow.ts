@@ -1,4 +1,7 @@
 import { AppContext } from "../session";
+import { db } from "@/app/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { Buffer } from "buffer";
 
 export async function handleApplicationFlow(ctx: AppContext) {
   if (!("text" in ctx.message!)) {
@@ -29,13 +32,41 @@ export async function handleApplicationFlow(ctx: AppContext) {
     case 5:
       session.answers!.linkedin = input;
       session.step = undefined;
-      return ctx.reply(
-        "✅ Thank you! Here's what we got:\n" +
+
+      // Use user ID (private chat)
+      const userId = ctx.from?.id?.toString() ?? "";
+      const encodedUserId = Buffer.from(userId).toString("base64");
+
+      // Save to Firestore
+      await addDoc(collection(db, "milk-scholar-applications"), {
+        telegramUserId: ctx.from?.id,
+        telegramUsername: ctx.from?.username,
+        ...session.answers,
+        createdAt: new Date().toISOString(),
+      });
+
+      await ctx.reply(
+        "✅ Thank you! Your application has been submitted.\n\nHere's what we received:\n" +
           `Name: ${session.answers?.name}\n` +
           `Age: ${session.answers?.age}\n` +
           `Education: ${session.answers?.education}\n` +
           `Institution: ${session.answers?.institution}\n` +
           `LinkedIn: ${session.answers?.linkedin}`
       );
+
+      await ctx.reply("🚀 Ready to continue? Open the WebApp below:", {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Open WebApp",
+                url: `https://your-webapp-url.vercel.app?startapp=${encodedUserId}`,
+              },
+            ],
+          ],
+        },
+      });
+
+      return;
   }
 }
