@@ -13,10 +13,14 @@ export interface AppSession {
   answers?: AppAnswers;
 }
 
+// You don't need SessionFlavor for Telegraf v4
 export interface AppContext extends Context {
   session: AppSession;
 }
 
-export const sessionMiddleware = session<AppSession>({
-  defaultSession: () => ({ step: undefined, answers: {} }),
+export const sessionMiddleware = session({
+  defaultSession: (): AppSession => ({
+    step: undefined,
+    answers: {},
+  }),
 });

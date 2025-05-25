@@ -1,6 +1,11 @@
 import { AppContext } from "../session";
 
 export async function handleApplicationFlow(ctx: AppContext) {
+  if (!("text" in ctx.message!)) {
+    await ctx.reply("❌ Please reply with text only.");
+    return;
+  }
+
   const input = ctx.message?.text;
   const session = ctx.session;
 
