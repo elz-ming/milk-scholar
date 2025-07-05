@@ -1,16 +1,14 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { USERS } from "@/app/data/userData";
 import Sidebar from "../../subcomponents/Sidebar";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 
-interface Props {
-  params: { id: string };
-}
-
-export default function UserProfile({ params }: Props) {
-  const userId = parseInt(params.id, 10);
+export default function UserProfile() {
+  const { id } = useParams();
+  const userId = parseInt(id as string, 10);
   const user = USERS.find((u) => u.id === userId);
 
   if (!user) {
