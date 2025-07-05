@@ -11,7 +11,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const showLayout = !pathname.startsWith("/settings");
+  const showLayout =
+    !pathname.startsWith("/settings") && !pathname.startsWith("/admin");
 
   const getTitle = () => {
     if (pathname === "/") return "Home";
