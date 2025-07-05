@@ -5,16 +5,16 @@ import Sidebar from "../../subcomponents/Sidebar";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 
-type Props = {
+interface Props {
   params: { id: string };
-};
+}
 
 export default function UserProfile({ params }: Props) {
   const userId = parseInt(params.id, 10);
   const user = USERS.find((u) => u.id === userId);
 
   if (!user) {
-    return notFound();
+    notFound(); // ✅ works fine if used like this in a client component
   }
 
   return (
@@ -37,7 +37,18 @@ export default function UserProfile({ params }: Props) {
               {user.gender}, {user.age} years old
             </p>
             <p className="mt-2">
-              <strong>Status:</strong> {user.status}
+              <strong>Status:</strong>{" "}
+              <span
+                className={`px-3 py-1 rounded-full text-sm ${
+                  user.status === "Completed"
+                    ? "bg-green-100 text-green-800"
+                    : user.status === "In Progress"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {user.status}
+              </span>
             </p>
           </div>
         </div>
@@ -53,8 +64,6 @@ export default function UserProfile({ params }: Props) {
             View Profile
           </a>
         </p>
-
-        {/* Add more details or actions here */}
       </section>
     </main>
   );
