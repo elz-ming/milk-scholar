@@ -55,9 +55,22 @@ bot.command("webapp", (ctx) => {
 });
 
 bot.action("start_application", async (ctx) => {
-  ctx.session.step = 1;
+  ctx.session.step = 0; // ✅ correct: index 0
   ctx.session.answers = {};
-  await ctx.reply("1. What's your name?");
+
+  const firstQuestion = Bucket_A_questions[0];
+
+  if (firstQuestion.options && firstQuestion.options.length > 0) {
+    await ctx.reply(`1. ${firstQuestion.text}`, {
+      reply_markup: {
+        keyboard: firstQuestion.options.map((option) => [option]),
+        resize_keyboard: true,
+        one_time_keyboard: true,
+      },
+    });
+  } else {
+    await ctx.reply(`1. ${firstQuestion.text}`);
+  }
 });
 
 bot.on("text", handleApplicationFlow);
