@@ -10,9 +10,15 @@ import {
 } from "@/app/data/questionBank";
 import FieldItem from "./subcomponents/FieldItem";
 
+type UserDoc = {
+  name: string;
+  bucketAResponse?: Record<string, string>;
+  bucketBResponse?: Record<string, string>;
+};
+
 export default function YouPage() {
   const [telegramId, setTelegramId] = useState<string | null>(null);
-  const [userDoc, setUserDoc] = useState<any>(null);
+  const [userDoc, setUserDoc] = useState<UserDoc | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -32,13 +38,27 @@ export default function YouPage() {
 
       const ref = doc(db, "milk-scholar-applications", telegramId);
       const snap = await getDoc(ref);
+
       if (snap.exists()) {
-        setUserDoc(snap.data());
+        const data = snap.data();
+        if (data && typeof data.name === "string") {
+          const typedDoc: UserDoc = {
+            name: data.name,
+            bucketAResponse: data.bucketAResponse ?? {},
+            bucketBResponse: data.bucketBResponse ?? {},
+          };
+          setUserDoc(typedDoc);
+        } else {
+          console.error("Invalid Firestore doc shape: missing name");
+          setUserDoc(null);
+        }
       } else {
         setUserDoc(null);
       }
+
       setLoading(false);
     };
+
     fetchUser();
   }, [telegramId]);
 
