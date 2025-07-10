@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
+import ToDoList from "@/app/subcomponents/ToDoList";
 import dynamic from "next/dynamic";
 
 // Dynamic import to avoid SSR issues
@@ -13,18 +14,21 @@ function MILKDashboard() {
   const [groupId, setGroupId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const launchParams = useLaunchParams();
+  // const launchParams = useLaunchParams();
+  const launchParams = "NjYzODczODU0MA==";
 
   useEffect(() => {
     const initialize = async () => {
       try {
         if (launchParams) {
           try {
-            const encodedGroupId =
-              launchParams.tgWebAppStartParam ??
-              launchParams?.tgWebAppData?.start_param ??
-              launchParams?.startapp ??
-              null;
+            // const encodedGroupId =
+            //   launchParams.tgWebAppStartParam ??
+            //   launchParams?.tgWebAppData?.start_param ??
+            //   launchParams?.startapp ??
+            //   null;
+
+            const encodedGroupId = launchParams;
 
             const decodedGroupId = atob(encodedGroupId as string);
             console.log("Decoded Group ID:", decodedGroupId);
@@ -54,12 +58,7 @@ function MILKDashboard() {
 
   if (!groupId) return <div className="p-4">No valid group ID found.</div>;
 
-  return (
-    <main className="min-h-screen bg-white p-4 text-black">
-      <h1 className="text-2xl font-bold mb-4">MILK Dashboard</h1>
-      <p className="text-sm text-gray-600 mb-4">User ID: {groupId}</p>
-    </main>
-  );
+  return <ToDoList />;
 }
 
 export default function Home() {
