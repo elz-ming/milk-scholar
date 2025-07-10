@@ -75,13 +75,17 @@ export default function YouPage() {
       bucket === "A" ? `bucketAResponse.${key}` : `bucketBResponse.${key}`;
     await updateDoc(ref, { [fieldPath]: editingValue });
 
-    setUserDoc((prev: any) => ({
-      ...prev,
-      [`bucket${bucket}Response`]: {
-        ...prev[`bucket${bucket}Response`],
-        [key]: editingValue,
-      },
-    }));
+    setUserDoc((prev: UserDoc | null) => {
+      if (!prev) return prev; // Defensive: should never happen, but safe.
+
+      return {
+        ...prev,
+        [`bucket${bucket}Response`]: {
+          ...prev[`bucket${bucket}Response`],
+          [key]: editingValue,
+        },
+      };
+    });
     setEditingKey(null);
     setEditingValue("");
   };
