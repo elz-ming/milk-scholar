@@ -35,16 +35,27 @@ export async function handleApplicationFlow(ctx: AppContext) {
   // ✅ Store the user's answer under the correct dynamic key
   session.answers![currentQuestion.key] = input;
 
-  // ✅ Advance to the next step
+  // ✅ Prepare next question
   const nextStep = currentStep + 1;
   const nextQuestion = Bucket_A_questions[nextStep];
 
   if (nextQuestion) {
     // ✅ There is another question — update session and ask it
     session.step = nextStep;
-    return ctx.reply(`${nextStep + 1}. ${nextQuestion.text}`);
+    // ✅ If next question has options, show buttons too
+    if (nextQuestion.options && nextQuestion.options.length > 0) {
+      return ctx.reply(`${nextStep + 1}. ${nextQuestion.text}`, {
+        reply_markup: {
+          keyboard: nextQuestion.options.map((option) => [option]),
+          resize_keyboard: true,
+          one_time_keyboard: true,
+        },
+      });
+    } else {
+      return ctx.reply(`${nextStep + 1}. ${nextQuestion.text}`);
+    }
   } else {
-    // ✅ No more questions — save all answers to Firestore
+    // ✅ All done — save to Firestore
     const userId = ctx.from?.id?.toString() ?? "";
     const encodedUserId = Buffer.from(userId).toString("base64");
 
@@ -59,24 +70,23 @@ export async function handleApplicationFlow(ctx: AppContext) {
       `✅ Thank you! Your application has been submitted.\n\nHere’s what we received:\n` +
         Object.entries(session.answers!)
           .map(([key, value]) => `• ${key}: ${value}`)
-          .join("\n")
-    );
-
-    // ✅ Offer the WebApp link for follow-up steps
-    await ctx.reply("🚀 Ready to continue? Open the WebApp below:", {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "Open WebApp",
-              web_app: {
-                url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
+          .join("\n") +
+        `\n\n🚀 Ready to continue? Tap below to open the WebApp.`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Open WebApp",
+                web_app: {
+                  url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
+                },
               },
-            },
+            ],
           ],
-        ],
-      },
-    });
+        },
+      }
+    );
 
     // ✅ Reset session so user can reapply if needed
     session.step = undefined;
