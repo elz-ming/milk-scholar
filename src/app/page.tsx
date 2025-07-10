@@ -55,12 +55,10 @@ function MILKDashboard() {
   if (!groupId) return <div className="p-4">No valid group ID found.</div>;
 
   return (
-    <div className="min-h-screen bg-white p-4 text-black">
+    <main className="min-h-screen bg-white p-4 text-black">
       <h1 className="text-2xl font-bold mb-4">MILK Dashboard</h1>
-      <main>
-        <p className="text-sm text-gray-600 mb-4">User ID: {groupId}</p>
-      </main>
-    </div>
+      <p className="text-sm text-gray-600 mb-4">User ID: {groupId}</p>
+    </main>
   );
 }
 

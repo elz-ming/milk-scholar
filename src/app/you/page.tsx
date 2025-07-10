@@ -2,7 +2,7 @@
 
 export default function YouPage() {
   return (
-    <div className="p-4">
+    <main className="p-4">
       <h2 className="text-lg font-semibold mb-2">Your Journey</h2>
       <p className="text-sm text-gray-600 mb-4">
         Personal progress and milestone tracker.
@@ -25,6 +25,6 @@ export default function YouPage() {
           </span>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

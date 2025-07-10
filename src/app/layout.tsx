@@ -24,9 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased`}>
         {showLayout && <HeaderBar title={getTitle()} />}
-        <main className={`min-h-screen ${showLayout ? "pb-16" : ""}`}>
-          {children}
-        </main>
+        {children}
         {showLayout && <FooterBar />}
       </body>
     </html>
