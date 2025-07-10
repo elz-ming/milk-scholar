@@ -14,21 +14,21 @@ function MILKDashboard() {
   const [groupId, setGroupId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  // const launchParams = useLaunchParams();
-  const launchParams = "NjYzODczODU0MA==";
+  const launchParams = useLaunchParams();
+  // const launchParams = "NjYzODczODU0MA==";
 
   useEffect(() => {
     const initialize = async () => {
       try {
         if (launchParams) {
           try {
-            // const encodedGroupId =
-            //   launchParams.tgWebAppStartParam ??
-            //   launchParams?.tgWebAppData?.start_param ??
-            //   launchParams?.startapp ??
-            //   null;
+            const encodedGroupId =
+              launchParams.tgWebAppStartParam ??
+              launchParams?.tgWebAppData?.start_param ??
+              launchParams?.startapp ??
+              null;
 
-            const encodedGroupId = launchParams;
+            // const encodedGroupId = launchParams;
 
             const decodedGroupId = atob(encodedGroupId as string);
             console.log("Decoded Group ID:", decodedGroupId);
