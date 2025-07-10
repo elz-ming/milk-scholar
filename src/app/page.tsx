@@ -21,29 +21,34 @@ function MILKDashboard() {
     const initialize = async () => {
       try {
         if (launchParams) {
-          try {
-            const encodedGroupId =
-              launchParams.tgWebAppStartParam ??
-              launchParams?.tgWebAppData?.start_param ??
-              launchParams?.startapp ??
-              null;
+          const encodedGroupId =
+            launchParams.tgWebAppStartParam ??
+            launchParams?.tgWebAppData?.start_param ??
+            launchParams?.startapp ??
+            null;
 
-            // const encodedGroupId = launchParams;
+          // const encodedGroupId = launchParams;
 
-            const decodedGroupId = atob(encodedGroupId as string);
-            console.log("Decoded Group ID:", decodedGroupId);
+          if (encodedGroupId) {
+            // Clear any old keys you care about
+            localStorage.removeItem("encoded_id");
+            localStorage.removeItem("encoded_id_ready");
+
+            // Store new encoded ID
+            localStorage.setItem("encoded_id", encodedGroupId);
+            localStorage.setItem("encoded_id_ready", "true");
+
+            const decodedGroupId = atob(encodedGroupId);
             setGroupId(decodedGroupId);
-          } catch (error) {
-            console.error("Error decoding group ID:", error);
-            setError("Invalid group ID format");
+          } else {
+            setError("Missing group ID");
           }
         } else {
-          console.log("No launchParams available");
-          setError(`launchParams: ${JSON.stringify(launchParams)}`);
+          setError("launchParams missing or invalid");
         }
-      } catch (error) {
-        console.error("Error in initializeComponent:", error);
-        setError("An error occurred while initializing the component");
+      } catch (err) {
+        console.error("Error initializing:", err);
+        setError("An error occurred");
       } finally {
         setIsLoading(false);
       }

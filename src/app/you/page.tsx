@@ -1,94 +1,129 @@
 "use client";
 
-// import { useRouter, useParams } from "next/navigation";
-// import { useEffect, useState } from "react";
-// import Image from "next/image";
-// import { ArrowLeft } from "lucide-react";
-// import { Bucket_A_questions } from "@/app/data/questionBank"; // ✅ adjust path!
-// import { doc, getDoc } from "firebase/firestore";
-// import { db } from "@/app/lib/firebase"; // ✅ adjust path!
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "@/app/lib/firebase";
+import {
+  Bucket_A_questions,
+  Bucket_B_questions,
+} from "@/app/data/questionBank";
+import FieldItem from "./subcomponents/FieldItem";
 
-// type User = {
-//   display_name: string;
-//   profile_pic_url?: string;
-//   telegramUsername: string;
-//   telegramUserId: string | number;
-//   [key: string]: any; // for dynamic fields
-// };
+export default function YouPage() {
+  const [telegramId, setTelegramId] = useState<string | null>(null);
+  const [userDoc, setUserDoc] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-export default function UserProfile() {
-  // const router = useRouter();
-  // const { encodedId } = useParams();
-  // const decodedId = decodeURIComponent(encodedId as string);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState("");
 
-  // const [user, setUser] = useState<User | null>(null);
-  // const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const storedId = localStorage.getItem("encoded_id");
+    if (storedId) {
+      const decodedId = atob(storedId);
+      setTelegramId(decodedId);
+    }
+  }, []);
 
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     if (!decodedId) return;
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!telegramId) return;
 
-  //     const userRef = doc(db, "milk-scholar-applications", decodedId);
-  //     const userSnap = await getDoc(userRef);
+      const ref = doc(db, "milk-scholar-applications", telegramId);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        setUserDoc(snap.data());
+      } else {
+        setUserDoc(null);
+      }
+      setLoading(false);
+    };
+    fetchUser();
+  }, [telegramId]);
 
-  //     if (userSnap.exists()) {
-  //       setUser(userSnap.data() as User);
-  //     } else {
-  //       console.error("No user found");
-  //     }
+  const startEditing = (bucket: "A" | "B", key: string, value: string) => {
+    setEditingKey(`${bucket}_${key}`);
+    setEditingValue(value);
+  };
 
-  //     setLoading(false);
-  //   };
+  const saveEdit = async (bucket: "A" | "B", key: string) => {
+    if (!telegramId) return;
 
-  //   fetchUser();
-  // }, [decodedId]);
+    const ref = doc(db, "milk-scholar-applications", telegramId);
+    const fieldPath =
+      bucket === "A" ? `bucketAResponse.${key}` : `bucketBResponse.${key}`;
+    await updateDoc(ref, { [fieldPath]: editingValue });
 
-  // if (loading) return <div className="p-4">Loading...</div>;
-  // if (!user) return <div className="p-4 text-red-500">User not found</div>;
+    setUserDoc((prev: any) => ({
+      ...prev,
+      [`bucket${bucket}Response`]: {
+        ...prev[`bucket${bucket}Response`],
+        [key]: editingValue,
+      },
+    }));
+    setEditingKey(null);
+    setEditingValue("");
+  };
 
-  // const imageSrc =
-  //   user.profile_pic_url?.trim() !== "" && user.profile_pic_url
-  //     ? user.profile_pic_url
-  //     : "/default-avatar.png";
-
-  // // ✅ Find which Bucket A questions exist in the doc and have a value
-  // const answered = Bucket_A_questions.filter(
-  //   (q) => user[q.key] && user[q.key] !== ""
-  // ).sort((a, b) => a.order - b.order);
+  if (loading) return <div className="p-4">Loading...</div>;
+  if (!userDoc) return <div className="p-4 text-red-500">User not found</div>;
 
   return (
-    <h1>hi</h1>
-    // <div className="p-4">
-    //   {/* Top Bar */}
-    //   <header className="flex items-center gap-4 mb-6">
-    //     <button onClick={() => router.back()}>
-    //       <ArrowLeft size={32} />
-    //     </button>
-    //   </header>
+    <main className="my-20 bg-gray-200 text-black overflow-y-auto">
+      {/* Top profile section */}
+      <section className="flex items-center gap-6 p-6 bg-white shadow-md">
+        <Image
+          src="/default-avatar.png"
+          alt={userDoc.name}
+          width={100}
+          height={100}
+          className="rounded-full"
+        />
+        <h1 className="text-3xl font-bold">{userDoc.name}</h1>
+      </section>
 
-    //   {/* Profile */}
-    //   <div className="flex items-center gap-4 mb-8">
-    //     <Image
-    //       src={imageSrc}
-    //       alt={user.display_name || user.telegramUsername}
-    //       width={80}
-    //       height={80}
-    //       className="rounded-full object-cover"
-    //     />
-    //     <h1 className="text-2xl font-bold">
-    //       {user.display_name || user.telegramUsername}
-    //     </h1>
-    //   </div>
+      {/* Bucket A */}
+      <section className="flex flex-col gap-4 p-4">
+        <h2 className="text-xl font-semibold">Basic Information</h2>
+        {Bucket_A_questions.map((q) => {
+          const val = userDoc.bucketAResponse?.[q.key] || "";
+          const isEditing = editingKey === `A_${q.key}`;
+          return (
+            <FieldItem
+              key={q.key}
+              label={q.text}
+              value={val}
+              isEditing={isEditing}
+              editingValue={editingValue}
+              onChange={setEditingValue}
+              onStartEdit={() => startEditing("A", q.key, val)}
+              onSave={() => saveEdit("A", q.key)}
+            />
+          );
+        })}
+      </section>
 
-    //   {/* Answers */}
-    //   <div className="flex flex-col gap-4">
-    //     {answered.map((q) => (
-    //       <div key={q.key} className="border p-4 rounded bg-white shadow-sm">
-    //         <p className="font-semibold">{q.text}</p>
-    //         <p className="text-gray-700">{user[q.key]}</p>
-    //       </div>
-    //     ))}
-    //   </div>
-    // </div>
+      {/* Bucket B */}
+      <section className="flex flex-col gap-4 p-4">
+        <h2 className="text-xl font-semibold">Advanced Information</h2>
+        {Bucket_B_questions.map((q) => {
+          const val = userDoc.bucketBResponse?.[q.key] || "";
+          const isEditing = editingKey === `B_${q.key}`;
+          return (
+            <FieldItem
+              key={q.key}
+              label={q.text}
+              value={val}
+              isEditing={isEditing}
+              editingValue={editingValue}
+              onChange={setEditingValue}
+              onStartEdit={() => startEditing("B", q.key, val)}
+              onSave={() => saveEdit("B", q.key)}
+            />
+          );
+        })}
+      </section>
+    </main>
   );
 }
