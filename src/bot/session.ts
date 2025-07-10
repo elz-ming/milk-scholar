@@ -1,11 +1,7 @@
 import { Context, session } from "telegraf";
 
 export interface AppAnswers {
-  name?: string;
-  age?: string;
-  education?: string;
-  institution?: string;
-  linkedin?: string;
+  [key: string]: string | undefined; // ✅ index signature
 }
 
 export interface AppSession {
@@ -13,7 +9,6 @@ export interface AppSession {
   answers?: AppAnswers;
 }
 
-// You don't need SessionFlavor for Telegraf v4
 export interface AppContext extends Context {
   session: AppSession;
 }

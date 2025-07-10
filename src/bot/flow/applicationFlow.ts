@@ -3,7 +3,11 @@ import { db } from "@/app/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { Buffer } from "buffer";
 
+// ✅ Import your question bank
+import { Bucket_A_questions } from "@/app/data/questionBank";
+
 export async function handleApplicationFlow(ctx: AppContext) {
+  // ✅ Ensure the incoming message is text
   if (!("text" in ctx.message!)) {
     await ctx.reply("❌ Please reply with text only.");
     return;
@@ -12,63 +16,70 @@ export async function handleApplicationFlow(ctx: AppContext) {
   const input = ctx.message?.text;
   const session = ctx.session;
 
-  switch (session.step) {
-    case 1:
-      session.answers!.name = input;
-      session.step = 2;
-      return ctx.reply("2. What's your age?");
-    case 2:
-      session.answers!.age = input;
-      session.step = 3;
-      return ctx.reply("3. What's your higher education status?");
-    case 3:
-      session.answers!.education = input;
-      session.step = 4;
-      return ctx.reply("4. Which institution are you attending?");
-    case 4:
-      session.answers!.institution = input;
-      session.step = 5;
-      return ctx.reply("5. What's your LinkedIn URL?");
-    case 5:
-      session.answers!.linkedin = input;
-      session.step = undefined;
+  // ✅ Initialize the session state if starting fresh
+  if (session.step === undefined) {
+    session.step = 0;
+    session.answers = {};
+  }
 
-      // Use user ID (private chat)
-      const userId = ctx.from?.id?.toString() ?? "";
-      const encodedUserId = Buffer.from(userId).toString("base64");
+  const currentStep = session.step;
+  const currentQuestion = Bucket_A_questions[currentStep];
 
-      // Save to Firestore
-      await addDoc(collection(db, "milk-scholar-applications"), {
-        telegramUserId: ctx.from?.id,
-        telegramUsername: ctx.from?.username,
-        ...session.answers,
-        createdAt: new Date().toISOString(),
-      });
+  // ✅ Defensive: if we somehow have no more questions but user still sends input
+  if (!currentQuestion) {
+    // Just in case someone triggers when done
+    await ctx.reply("✅ You have already completed the application.");
+    return;
+  }
 
-      await ctx.reply(
-        "✅ Thank you! Your application has been submitted.\n\nHere's what we received:\n" +
-          `Name: ${session.answers?.name}\n` +
-          `Age: ${session.answers?.age}\n` +
-          `Education: ${session.answers?.education}\n` +
-          `Institution: ${session.answers?.institution}\n` +
-          `LinkedIn: ${session.answers?.linkedin}`
-      );
+  // ✅ Store the user's answer under the correct dynamic key
+  session.answers![currentQuestion.key] = input;
 
-      await ctx.reply("🚀 Ready to continue? Open the WebApp below:", {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "Open WebApp",
-                web_app: {
-                  url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
-                },
+  // ✅ Advance to the next step
+  const nextStep = currentStep + 1;
+  const nextQuestion = Bucket_A_questions[nextStep];
+
+  if (nextQuestion) {
+    // ✅ There is another question — update session and ask it
+    session.step = nextStep;
+    return ctx.reply(`${nextStep + 1}. ${nextQuestion.text}`);
+  } else {
+    // ✅ No more questions — save all answers to Firestore
+    const userId = ctx.from?.id?.toString() ?? "";
+    const encodedUserId = Buffer.from(userId).toString("base64");
+
+    await addDoc(collection(db, "milk-scholar-applications"), {
+      telegramUserId: ctx.from?.id,
+      telegramUsername: ctx.from?.username,
+      ...session.answers,
+      createdAt: new Date().toISOString(),
+    });
+
+    await ctx.reply(
+      `✅ Thank you! Your application has been submitted.\n\nHere’s what we received:\n` +
+        Object.entries(session.answers!)
+          .map(([key, value]) => `• ${key}: ${value}`)
+          .join("\n")
+    );
+
+    // ✅ Offer the WebApp link for follow-up steps
+    await ctx.reply("🚀 Ready to continue? Open the WebApp below:", {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "Open WebApp",
+              web_app: {
+                url: `${process.env.WEBAPP_URL}?startapp=${encodedUserId}`,
               },
-            ],
+            },
           ],
-        },
-      });
+        ],
+      },
+    });
 
-      return;
+    // ✅ Reset session so user can reapply if needed
+    session.step = undefined;
+    return;
   }
 }
