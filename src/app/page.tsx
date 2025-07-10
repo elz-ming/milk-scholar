@@ -35,10 +35,10 @@ function MILKDashboard() {
             localStorage.removeItem("encoded_id_ready");
 
             // Store new encoded ID
-            localStorage.setItem("encoded_id", encodedGroupId);
+            localStorage.setItem("encoded_id", encodedGroupId as string);
             localStorage.setItem("encoded_id_ready", "true");
 
-            const decodedGroupId = atob(encodedGroupId);
+            const decodedGroupId = atob(encodedGroupId as string);
             setGroupId(decodedGroupId);
           } else {
             setError("Missing group ID");
