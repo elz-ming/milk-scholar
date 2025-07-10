@@ -1,7 +1,9 @@
 import { Telegraf } from "telegraf";
+import { Buffer } from "buffer";
+
 import { sessionMiddleware, AppContext } from "./session";
 import { handleApplicationFlow } from "./flow/applicationFlow";
-import { Buffer } from "buffer";
+import { Bucket_A_questions } from "@/app/data/questionBank";
 
 export const bot = new Telegraf<AppContext>(process.env.BOT_TOKEN!);
 
