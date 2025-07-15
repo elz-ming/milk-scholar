@@ -1,27 +1,19 @@
-"use client";
-
-type TaskItemProps = {
+interface TaskItemProps {
   number: number;
   text: string;
-  completed: boolean;
-  onToggle: () => void;
-};
+  onClick: () => void;
+}
 
-export default function TaskItem({
-  number,
-  text,
-  completed,
-  onToggle,
-}: TaskItemProps) {
+export default function TaskItem({ number, text, onClick }: TaskItemProps) {
   return (
     <button
-      onClick={onToggle}
-      className={`flex items-center justify-start gap-4 w-full h-16 px-4 rounded-lg border shadow-sm text-left transition ${
-        completed ? "bg-gray-200 line-through" : "bg-gray-50"
-      }`}
+      onClick={onClick}
+      className="w-full flex items-center justify-between bg-gray-100 rounded-lg p-4 shadow-sm hover:bg-gray-200 z-0"
     >
-      <div className="w-6 text-lg font-bold">{number}.</div>
-      <div className="flex-1 truncate">{text}</div>
+      <span className="font-medium">
+        {number}. {text}
+      </span>
+      <span className="text-sm text-[#e26f4a]">→</span>
     </button>
   );
 }
